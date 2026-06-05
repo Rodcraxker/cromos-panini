@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Generador de Stickers Panini 2026</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='panini/css/panini.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+    
+    <style>
+        #video, #canvas, #preview { width: 100%; max-width: 400px; display: none; }
+        .paso { display: none; }
+        .paso.activo { display: block; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Genera tu Cromo</h1>
+
+    <div id="paso1" class="paso activo">
+        <h3>Paso 1: Datos personales</h3>
+        <form id="stickerForm">
+            <input type="text" name="nombre" placeholder="Nombre" required><br>
+            <input type="date" name="fecha" required><br>
+            <input type="number" step="0.01" name="estatura" placeholder="Estatura" required><br>
+            <input type="number" name="peso" placeholder="Peso" required><br>
+            <select name="equipo">
+                <option value="ecuador">Ecuador</option>
+                <option value="brasil">Brasil</option>
+                <option value="argentina">Argentina</option>
+                <option value="portugal">Portugal</option>
+            </select>
+        </form>
+        <button onclick="siguientePaso(2)">Siguiente: Tomar Foto</button>
+    </div>
+
+    <div id="paso2" class="paso">
+        <h3>Paso 2: Sonríe para la foto</h3>
+        <video id="video" autoplay playsinline></video>
+        <canvas id="canvas" style="display:none;"></canvas>
+        <img id="preview" style="display:none;">
+        <div id="controlesCamara">
+            <button id="btnCapturar" onclick="tomarFoto()">📸 Capturar</button>
+            <button id="btnConfirmar" style="display:none;" onclick="confirmarFoto()">✅ Aceptar</button>
+            <button id="btnRepetir" style="display:none;" onclick="reiniciarCamara()">🔄 Repetir</button>
+        </div>
+    </div>
+
+    <div id="paso3" class="paso">
+        <h3>Ajusta tu foto</h3>
+        <input type="file" id="inputImage" accept="image/*">
+        <div class="editor-container">
+            <img id="image" style="max-width: 100%; display: none;">
+        </div>
+        <button id="btnRecortar" style="display: none;">Aceptar</button>
+    </div>
+
+    <div id="paso4" class="paso">
+        <h3>Acomoda tu foto sobre el cromo</h3>
+        <canvas id="canvasEditor" width="520" height="580" style="border:1px solid #ccc;"></canvas>
+        <button id="btnFinalizar">Generar cromo final</button>
+    </div>
+
+    <div id="resultado"></div>
+
+    <div class="opciones">
+        <button onclick="descargarCromo()">Descargar PNG</button>
+        <button onclick="window.print()">Imprimir</button>
+    </div>
+</div>
+
+
+<script>
+
+    function mostrarBoton(id) {
+        const btn = document.getElementById(id);
+        if(btn) btn.style.setProperty('display', 'block', 'important');
+    }
+
+
+    const video = document.getElementById('video');
+    const canvasCam = document.getElementById('canvas'); // Renombrado para evitar confusión
+    const preview = document.getElementById('preview');
+    const imageElement = document.getElementById('image');
+    let cropper, fabricCanvas;
+
+    // --- Navegación de Pasos ---
+    function siguientePaso(n) {
+        document.querySelectorAll('.paso').forEach(p => p.classList.remove('activo'));
+        document.getElementById('paso' + n).classList.add('activo');
+        if(n === 2) iniciarCamara();
+    }
+
+    // --- Cámara ---
+    async function iniciarCamara() {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        video.srcObject = stream;
+        video.style.display = 'block';
+    }
+
+    function tomarFoto() {
+        canvasCam.width = video.videoWidth;
+        canvasCam.height = video.videoHeight;
+        canvasCam.getContext('2d').drawImage(video, 0, 0, canvasCam.width, canvasCam.height);
+        preview.src = canvasCam.toDataURL('image/png');
+        preview.style.display = 'block';
+        video.style.display = 'none';
+        document.getElementById('btnCapturar').style.display = 'none';
+        document.getElementById('btnConfirmar').style.display = 'inline';
+        document.getElementById('btnRepetir').style.display = 'inline';
+    }
+
+    function confirmarFoto() {
+        siguientePaso(3);
+        iniciarEditor(preview.src);
+        // Asegurar que el botón de recortar sea visible
+        document.getElementById('btnRecortar').style.display = 'block';
+    }
+
+    // --- Editor Cropper (Paso 3) ---
+    function iniciarEditor(src) {
+        if (cropper) cropper.destroy();
+        imageElement.src = src;
+        imageElement.style.display = 'block';
+        cropper = new Cropper(imageElement, {
+            aspectRatio: 520 / 580,
+            viewMode: 0,
+            dragMode: 'move',
+            autoCropArea: 1,
+            cropBoxMovable: false,
+            cropBoxResizable: false,
+            zoomable: true
+        });
+    }
+
+    // --- Transición a Fabric con eliminación de fondo (Paso 4) ---
+    document.getElementById('btnRecortar').onclick = async () => {
+        apagarCamara();
+        
+        // Indicador visual de procesamiento
+        const btn = document.getElementById('btnRecortar');
+        const originalText = btn.innerText;
+        btn.innerText = "Procesando...";
+        btn.disabled = true;
+
+        const croppedCanvas = cropper.getCroppedCanvas();
+        
+        // Convertir a blob para enviar al servidor
+        croppedCanvas.toBlob(async (blob) => {
+            const formData = new FormData();
+            formData.append('foto', blob);
+
+            try {
+                // Llamar al servidor para quitar el fondo
+                const response = await fetch('/eliminar_fondo', { method: 'POST', body: formData });
+                
+                if (!response.ok) throw new Error('Error al quitar el fondo');
+                
+                const blobSinFondo = await response.blob();
+                const urlSinFondo = URL.createObjectURL(blobSinFondo);
+
+                // Pasamos la imagen limpia a la función que monta el Fabric Canvas
+                irAlPaso4(urlSinFondo);
+            } catch (error) {
+                console.error(error);
+                alert("Hubo un error al procesar la imagen.");
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        }, 'image/png');
+    };
+
+    // Función auxiliar para inicializar el canvas
+    function irAlPaso4(dataUrl) {
+        const equipo = document.querySelector('select[name="equipo"]').value;
+        const mapeo = {'ecuador': 'ec', 'brasil': 'br', 'portugal': 'por', 'argentina': 'arg'};
+        const nombreArchivo = mapeo[equipo] || 'ec';
+        
+        siguientePaso(4);
+
+        // 1. Crear el canvas sin dimensiones fijas iniciales
+        fabricCanvas = new fabric.Canvas('canvasEditor');
+
+        // 2. Cargar marco para obtener sus dimensiones reales
+        fabric.Image.fromURL(`static/${nombreArchivo}.png`, (marco) => {
+            
+            // 3. Establecer el tamaño real del lienzo basado en el marco
+            fabricCanvas.setDimensions({ 
+                width: marco.width, 
+                height: marco.height 
+            });
+
+            // 4. Calcular el factor de escala: 
+            // El ancho visual objetivo es 520px (coincide con tu CSS max-width)
+            const displayWidth = 520; 
+            const escala = displayWidth / marco.width;
+
+            // 5. Aplicar Zoom para sincronizar coordenadas del ratón
+            fabricCanvas.setZoom(escala);
+            
+            // 6. Ajustar el tamaño visual del canvas en el contenedor
+            fabricCanvas.setWidth(displayWidth);
+            fabricCanvas.setHeight(marco.height * escala);
+
+            marco.selectable = false;
+            marco.evented = false;
+            fabricCanvas.add(marco);
+            fabricCanvas.sendToBack(marco);
+
+            // 7. Cargar foto procesada (la que viene sin fondo)
+            fabric.Image.fromURL(dataUrl, (userImg) => {
+                // Ajustar la foto manteniendo proporción
+                userImg.scaleToWidth(marco.width * 0.4); 
+                
+                // Centrar la foto inicialmente en el lienzo real
+                userImg.set({
+                    left: (marco.width - userImg.getScaledWidth()) / 2,
+                    top: (marco.height - userImg.getScaledHeight()) / 2
+                });
+                
+                fabricCanvas.add(userImg);
+                fabricCanvas.setActiveObject(userImg);
+            });
+        });
+    }
+
+    // --- Generación Final (Paso 4) ---
+    document.getElementById('btnFinalizar').onclick = () => {
+        const finalData = fabricCanvas.toDataURL({ format: 'png' });
+        
+        fetch(finalData)
+            .then(res => res.blob())
+            .then(blob => {
+                const formData = new FormData(document.getElementById('stickerForm'));
+                formData.append('foto', blob, 'cromo_final.png');
+                
+                document.getElementById('resultado').innerHTML = "Generando cromo final...";
+                
+                return fetch('/procesar_cromo', { method: 'POST', body: formData });
+            })
+            .then(res => res.blob())
+            .then(blob => {
+                const url = URL.createObjectURL(blob);
+                document.getElementById('resultado').innerHTML = `
+                    <img src="${url}" style="width:100%; max-width:400px; border: 2px solid #333;">
+                    <br><button onclick="window.location.reload()">🔄 Crear otro cromo</button>
+                `;
+            });
+    };
+
+    function apagarCamara() {
+        const stream = video.srcObject;
+        if (stream) stream.getTracks().forEach(track => track.stop());
+    }
+
+    
+    document.getElementById('inputImage').onchange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            siguientePaso(3); 
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                iniciarEditor(event.target.result);
+                // AQUÍ ESTABA EL ERROR: Necesitas mostrar el botón explícitamente
+                document.getElementById('btnRecortar').style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    function descargarCromo() {
+        const link = document.createElement('a');
+        link.href = fabricCanvas.toDataURL({ format: 'png' });
+        link.download = 'cromo_panini.png';
+        link.click();
+    }
+
+    function reiniciarCamara() {
+        video.style.display = 'block';
+        preview.style.display = 'none';
+        document.getElementById('btnCapturar').style.display = 'inline';
+        document.getElementById('btnConfirmar').style.display = 'none';
+        document.getElementById('btnRepetir').style.display = 'none';
+    }
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,117 @@
+/* Estilo General - Responsive desde la base */
+body {
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: #eef2f5;
+    margin: 0;
+    min-height: 100vh;
+    padding: 10px; /* Menos padding en móviles */
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.container {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    width: 95%; 
+    max-width: 560px; /* Aumentamos ligeramente para que quepan los 520px del cromo */
+    text-align: center;
+    box-sizing: border-box;
+    margin: 10px auto; /* Centrado automático */
+}
+
+h1 { color: #2c3e50; font-size: 1.5rem; margin-bottom: 15px; }
+
+/* Cámara y Vista Previa - Adaptables */
+#video, #preview, #image {
+    width: 100%;
+    max-height: 40vh; /* Se adapta a la altura de la pantalla */
+    background: #222;
+    border-radius: 15px;
+    object-fit: cover;
+    margin-bottom: 15px;
+    border: 4px solid #fff;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+/* Formulario */
+input, select {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 10px;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    box-sizing: border-box;
+    font-size: 16px; /* Evita zoom automático en iOS al hacer focus */
+}
+
+/* Botones */
+button {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.1s, background 0.3s;
+    margin-top: 8px;
+}
+
+/* Colores específicos */
+#btnCapturar { background: #007bff; color: white; }
+#btnConfirmar { background: #27ae60; color: white; }
+#btnRepetir { background: #f39c12; color: white; }
+#btnRecortar { background: #8e44ad; color: white; display: none; }
+
+button:active { transform: scale(0.98); } /* Feedback táctil para móviles */
+
+/* Resultado */
+#resultado img {
+    width: 100%;
+    height: auto;
+    margin-top: 20px;
+    border-radius: 15px;
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive para dispositivos muy pequeños */
+@media (max-width: 380px) {
+    h1 { font-size: 1.2rem; }
+    .container { padding: 15px; }
+}
+
+/* Impresión */
+@media print {
+    body { background: white; padding: 0; }
+    .container { box-shadow: none; width: 100%; max-width: none; }
+    .paso, #controlesCamara, button, input, h1 { display: none; }
+    #resultado { display: block !important; }
+}
+
+/* Indica visualmente que la foto es arrastrable */
+.cropper-view-box {
+    cursor: move;
+    outline: 2px solid #fff;
+}
+
+#canvasEditor {
+    width: 100% !important; /* Se ajusta al contenedor */
+    max-width: 520px !important; /* Respeta tu límite de diseño */
+    height: auto !important; /* Mantiene la proporción al cambiar de pantalla */
+    display: block;
+    margin: 0 auto;
+}
+
+/* Opcional: Ajusta el contenedor del editor para que no se desborde */
+.paso4 {
+    overflow: hidden;
+}
+
