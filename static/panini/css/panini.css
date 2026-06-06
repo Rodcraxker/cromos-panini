@@ -1,117 +1,275 @@
-/* Estilo General - Responsive desde la base */
+/* ==========================================================================
+   ESTILO PANINI WORLD CUP 2026 - COMPLETO Y CORREGIDO
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,700;0,900;1,700&display=swap');
+
 body {
-    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    background-color: #eef2f5;
+    font-family: 'Montserrat', 'Segoe UI', Roboto, sans-serif;
+    background: radial-gradient(circle at center, #1a2a6c, #271033, #09050f);
     margin: 0;
     min-height: 100vh;
-    padding: 10px; /* Menos padding en móviles */
+    padding: 15px;
     display: flex;
     justify-content: center;
-    align-items: flex-start;
+    align-items: center;
+    color: #ffffff;
 }
 
+/* --- SISTEMA DE PASOS (CRUCIAL) --- */
+.paso { 
+    display: none !important; 
+}
+.paso.activo { 
+    display: block !important; 
+}
+
+/* Contenedor Principal */
 .container {
-    background: #ffffff;
-    padding: 20px;
-    border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    width: 95%; 
-    max-width: 560px; /* Aumentamos ligeramente para que quepan los 520px del cromo */
+    background: linear-gradient(135deg, #1e112a 0%, #11071c 100%);
+    padding: 30px 24px;
+    border-radius: 24px;
+    border: 3px solid #dfb72d;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(223, 183, 45, 0.2);
+    width: 100%; 
+    max-width: 540px; 
     text-align: center;
     box-sizing: border-box;
-    margin: 10px auto; /* Centrado automático */
-}
-
-h1 { color: #2c3e50; font-size: 1.5rem; margin-bottom: 15px; }
-
-/* Cámara y Vista Previa - Adaptables */
-#video, #preview, #image {
-    width: 100%;
-    max-height: 40vh; /* Se adapta a la altura de la pantalla */
-    background: #222;
-    border-radius: 15px;
-    object-fit: cover;
-    margin-bottom: 15px;
-    border: 4px solid #fff;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-}
-
-/* Formulario */
-input, select {
-    width: 100%;
-    padding: 12px;
-    margin-bottom: 10px;
-    border: 2px solid #ddd;
-    border-radius: 10px;
-    box-sizing: border-box;
-    font-size: 16px; /* Evita zoom automático en iOS al hacer focus */
-}
-
-/* Botones */
-button {
-    width: 100%;
-    padding: 14px;
-    border: none;
-    border-radius: 10px;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: transform 0.1s, background 0.3s;
-    margin-top: 8px;
-}
-
-/* Colores específicos */
-#btnCapturar { background: #007bff; color: white; }
-#btnConfirmar { background: #27ae60; color: white; }
-#btnRepetir { background: #f39c12; color: white; }
-#btnRecortar { background: #8e44ad; color: white; display: none; }
-
-button:active { transform: scale(0.98); } /* Feedback táctil para móviles */
-
-/* Resultado */
-#resultado img {
-    width: 100%;
-    height: auto;
-    margin-top: 20px;
-    border-radius: 15px;
-    animation: fadeIn 0.5s ease;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* Responsive para dispositivos muy pequeños */
-@media (max-width: 380px) {
-    h1 { font-size: 1.2rem; }
-    .container { padding: 15px; }
-}
-
-/* Impresión */
-@media print {
-    body { background: white; padding: 0; }
-    .container { box-shadow: none; width: 100%; max-width: none; }
-    .paso, #controlesCamara, button, input, h1 { display: none; }
-    #resultado { display: block !important; }
-}
-
-/* Indica visualmente que la foto es arrastrable */
-.cropper-view-box {
-    cursor: move;
-    outline: 2px solid #fff;
-}
-
-#canvasEditor {
-    width: 100% !important; /* Se ajusta al contenedor */
-    max-width: 520px !important; /* Respeta tu límite de diseño */
-    height: auto !important; /* Mantiene la proporción al cambiar de pantalla */
-    display: block;
-    margin: 0 auto;
-}
-
-/* Opcional: Ajusta el contenedor del editor para que no se desborde */
-.paso4 {
+    margin: 20px auto;
+    position: relative;
     overflow: hidden;
 }
 
+/* Línea multicolor superior */
+.container::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 6px;
+    background: linear-gradient(90deg, #009b3a, #f7d117, #002f6c, #e4002b);
+}
+
+h1 { 
+    color: #dfb72d; 
+    font-size: 1.8rem; 
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 10px;
+    margin-bottom: 25px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+h3 {
+    color: #00e5ff;
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+}
+
+/* --- Campos de Formulario Unificados --- */
+input, select {
+    width: 100%;
+    padding: 14px 18px;
+    margin-bottom: 15px;
+    background-color: rgba(255, 255, 255, 0.07) !important; /* Forzado para evitar el fondo blanco */
+    border: 2px solid #4a3461;
+    border-radius: 12px;
+    box-sizing: border-box;
+    font-size: 16px; 
+    color: #fff !important;
+    font-family: 'Montserrat', sans-serif;
+    transition: all 0.3s ease;
+}
+
+/* Estilo para el input de tipo file */
+input[type="file"] {
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.03) !important;
+    cursor: pointer;
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: #dfb72d;
+    background-color: rgba(255, 255, 255, 0.12) !important;
+    box-shadow: 0 0 10px rgba(223, 183, 45, 0.3);
+}
+
+input::placeholder {
+    color: #a395b0;
+}
+
+select option {
+    background-color: #1e112a;
+    color: #fff;
+}
+
+/* --- Botones Estilo Copa del Mundo --- */
+button {
+    width: 100%;
+    padding: 15px 20px;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-top: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+/* Botón genérico (Siguiente paso / Navegación) */
+button:not([id]) {
+    background: linear-gradient(135deg, #dfb72d 0%, #b89113 100%);
+    color: #0a0410;
+}
+button:not([id]):hover {
+    background: linear-gradient(135deg, #ffe169 0%, #dfb72d 100%);
+    transform: translateY(-2px);
+}
+
+#btnCapturar { 
+    background: linear-gradient(135deg, #007bff, #0056b3); color: white; 
+}
+#btnConfirmar { 
+    background: linear-gradient(135deg, #00e676, #00b248); color: #0a0410; 
+}
+#btnRepetir { 
+    background: linear-gradient(135deg, #ff9100, #ff6d00); color: white; 
+}
+#btnRecortar { 
+    background: linear-gradient(135deg, #00e5ff, #00b4d8); color: #0a0410; 
+}
+#btnFinalizar {
+    background: linear-gradient(135deg, #ff007f, #b30059); color: white;
+    font-size: 18px;
+}
+
+button:hover {
+    filter: brightness(1.1);
+    transform: translateY(-2px);
+}
+
+button:active { 
+    transform: translateY(1px); 
+    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+}
+
+/* --- Multimedia y Lienzos --- */
+#video, #preview, #image {
+    width: 100%;
+    max-height: 45vh; 
+    background: #0d0614;
+    border-radius: 16px;
+    object-fit: cover;
+    margin-bottom: 20px;
+    border: 3px solid #4a3461;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+}
+
+#controlesCamara {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+#controlesCamara button {
+    margin-top: 0;
+    flex: 1;
+}
+
+#canvasEditor, 
+.fabric-sticker-container canvas {
+    width: 100% !important;
+    height: auto !important;
+    display: block !important;
+    margin: 0 auto !important;
+    border: none !important; /* Quitamos bordes viejos para evitar duplicados */
+    box-shadow: none !important;
+}
+
+.opciones {
+    display: flex;
+    gap: 12px;
+    margin-top: 15px;
+}
+.opciones button {
+    flex: 1;
+    font-size: 14px;
+    padding: 12px;
+}
+
+#resultado img {
+    width: 100%;
+    height: auto;
+    margin-top: 25px;
+    border-radius: 16px;
+    border: 4px solid #dfb72d;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.8);
+    animation: packOpening 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes packOpening {
+    from { opacity: 0; transform: scale(0.7) rotate(-5deg); filter: brightness(2); }
+    to { opacity: 1; transform: scale(1) rotate(0deg); filter: brightness(1); }
+}
+
+.cropper-view-box {
+    cursor: move;
+    outline: 2px solid #dfb72d;
+}
+.cropper-face {
+    background-color: transparent;
+}
+
+@media (max-width: 480px) {
+    h1 { font-size: 1.4rem; }
+    .container { padding: 20px 15px; }
+    .opciones { flex-direction: column; gap: 0; }
+}
+
+@media print {
+    body { background: white; padding: 0; }
+    .container { box-shadow: none; border: none; width: 100%; }
+    .paso, #controlesCamara, button, input, select, h1, h3, .opciones { display: none; }
+    #resultado { display: block !important; }
+}
+/* Fuerza a los contenedores automáticos de Fabric a centrarse en la pantalla */
+.fabric-sticker-container {
+    margin: 0 auto 20px auto !important;
+    display: block !important;
+    max-width: 520px !important; /* El límite que definiste en tu diseño */
+    width: 100% !important;
+    border-radius: 12px !important; /* Bordes redondeados al marco exterior */
+    overflow: hidden !important;    /* Evita que el fondo turquesa se salga de las esquinas */
+    border: 3px solid #dfb72d !important; /* ¡El glorioso borde dorado va AQUÍ! */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+}
+/* Contenedor del título e ícono */
+.header-app {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 25px;
+}
+
+/* Estilos de la copa dorada */
+.icon-header {
+    font-size: 2.2rem;       /* Un toque más grande para que resalte la copa */
+    color: #dfb72d;          /* Tu dorado Panini oficial */
+    animation: shineTrophy 3s ease-in-out infinite; /* Efecto premium de brillo/pulso */
+}
+
+/* Animación de pulso elegante para el trofeo */
+@keyframes shineTrophy {
+    0%, 100% { transform: scale(1); filter: drop-shadow(0 0 0px rgba(223, 183, 45, 0)); }
+    50% { transform: scale(1.08); filter: drop-shadow(0 0 8px rgba(223, 183, 45, 0.6)); }
+}
+
+.header-app h1 {
+    margin: 0 !important;
+    padding: 0 !important;
+}

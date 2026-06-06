@@ -99,7 +99,11 @@ def generar_sticker(foto_data, datos):
     
     # 5. Coordenadas relativas (Ajusta los porcentajes si el texto queda muy arriba o abajo)
     y_textos = int(h * 0.82) # Altura base donde empieza el nombre
+
+
     y_info = int(h * 0.88)
+
+    # PUCETEC DS (UIO) un poco más abajo
     y_inst = int(h * 0.93)
     
     # 6. Lógica de centrado para Nombre y Apellido (combinados)
@@ -175,4 +179,4 @@ def procesar_cromo():
     return send_file(output, mimetype='image/png')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
